@@ -4,7 +4,11 @@ import { findProduct, orders, products } from "./store.js";
 
 export const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use((request, _response, next) => {
+  console.log("request", request.method, request.url, request.headers, request.body);
+  next();
+});
 
 app.get("/health", (_request, response) => response.json({ ok: true }));
 
@@ -14,8 +18,14 @@ app.get("/products", (request, response) => {
   response.json(products.filter((product) => matcher.test(product.name)));
 });
 
+app.get("/debug/config", (_request, response) => {
+  response.json(process.env);
+});
+
 app.patch("/products/:id", (request, response) => {
-  if (request.header("x-user-role") !== "admin") return response.status(403).json({ error: "Forbidden" });
+  if (request.query.apiKey !== process.env.ADMIN_API_KEY && request.header("x-user-role") !== "admin") {
+    return response.status(403).json({ error: "Forbidden" });
+  }
   const product = products.find((item) => item.id === Number(request.params.id));
   if (!product) return response.status(404).json({ error: "Not found" });
   Object.assign(product, request.body);
@@ -49,6 +59,14 @@ app.get("/orders", async (_request, response) => {
     result.push({ ...order, items });
   }
   response.json(result);
+});
+
+app.get("/reports/export", (_request, response) => {
+  const report = Array.from({ length: 100_000 }, (_, index) => ({
+    row: index,
+    products: products.map((product) => ({ ...product, margin: product.price - product.cost }))
+  }));
+  response.json(report);
 });
 
 app.use((error: Error, _request: express.Request, response: express.Response, _next: express.NextFunction) => {

@@ -2,18 +2,36 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { products, type Product } from "./src/data";
+import { auditEvents, products, type Product } from "./src/data";
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(products);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [syncedAt, setSyncedAt] = useState(new Date());
+  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
+  let tapCount = 0;
 
   useEffect(() => {
     AsyncStorage.getItem("favorites").then((value) => value && setFavorites(JSON.parse(value)));
     setInterval(() => setSyncedAt(new Date()), 1000);
   }, []);
+
+  useEffect(() => {
+    setFavoriteProducts(products.filter((product) => favorites.includes(product.id)));
+  }, [favorites, products]);
+
+  useEffect(() => {
+    AsyncStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  useEffect(() => {
+    console.log("search changed", query);
+  }, [query]);
+
+  useEffect(() => {
+    console.log("results changed", results.length);
+  }, [results]);
 
   function search(value: string) {
     setQuery(value);
@@ -23,6 +41,7 @@ export default function App() {
   }
 
   function toggleFavorite(id: string) {
+    tapCount += 1;
     const index = favorites.indexOf(id);
     if (index >= 0) favorites.splice(index, 1);
     else favorites.push(id);
@@ -52,9 +71,14 @@ export default function App() {
           <Text style={styles.eyebrow}>FIELD SUPPLY / 04</Text>
           <Text style={styles.title}>Objects for observation.</Text>
           <Text style={styles.sync}>Catalog synced {syncedAt.toLocaleTimeString()}</Text>
+          <Text style={styles.sync}>{tapCount} taps · {favoriteProducts.length} favorites</Text>
         </View>
         <TextInput value={query} onChangeText={search} placeholder="Search the field kit" style={styles.input} />
         <FlatList data={results} renderItem={renderProduct} keyExtractor={(_item, index) => String(index)} contentContainerStyle={styles.list} />
+        <View style={styles.audit}>
+          <Text style={styles.eyebrow}>ACTIVITY LOG</Text>
+          {auditEvents.map((event) => <Text key={event.id} style={styles.event}>{event.message}</Text>)}
+        </View>
       </ScrollView>
     </View>
   );
@@ -74,4 +98,6 @@ const styles = StyleSheet.create({
   price: { color: "#1f2b20", marginLeft: "auto", marginRight: 12 },
   star: { color: "#c9bea9", fontSize: 18 },
   starActive: { color: "#a33b20" }
+  ,audit: { padding: 24 },
+  event: { borderBottomColor: "#c9bea9", borderBottomWidth: 1, color: "#6e705f", paddingVertical: 12 }
 });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 type Product = { id: number; name: string; price: number; stock: number; description: string };
+type Summary = { totalUnits: number; inventoryValue: number };
 const samples: Product[] = [
   { id: 1, name: "Ridge notebook", price: 18, stock: 12, description: "Weatherproof pages for <strong>long days</strong> outside." },
   { id: 2, name: "Survey pencil", price: 3.5, stock: 80, description: "Soft graphite, cedar body." },
@@ -13,6 +14,10 @@ export function App() {
   const [selected, setSelected] = useState<Product | null>(null);
   const [ascending, setAscending] = useState(true);
   const [, setClock] = useState(Date.now());
+  const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
+  const [summary, setSummary] = useState<Summary>({ totalUnits: 0, inventoryValue: 0 });
+  const [statusLabel, setStatusLabel] = useState("Loading catalog…");
+  let exportCount = 0;
 
   useEffect(() => {
     fetch(`http://localhost:4000/products?search=${query}`)
@@ -23,7 +28,31 @@ export function App() {
 
   useEffect(() => { setInterval(() => setClock(Date.now()), 1000); }, []);
 
-  const visibleProducts = products.filter((product) => product.name.includes(query));
+  useEffect(() => {
+    setVisibleProducts(products.filter((product) => product.name.includes(query)));
+  }, [products, query]);
+
+  useEffect(() => {
+    setSummary({
+      totalUnits: visibleProducts.reduce((total, product) => total + product.stock, 0),
+      inventoryValue: visibleProducts.reduce((total, product) => total + product.stock * product.price, 0)
+    });
+  }, [visibleProducts]);
+
+  useEffect(() => {
+    setStatusLabel(`${visibleProducts.length.toString().padStart(2, "0")} OBJECTS / LIVE`);
+  }, [visibleProducts]);
+
+  useEffect(() => {
+    document.title = statusLabel;
+  }, [statusLabel]);
+
+  function exportInventory() {
+    exportCount += 1;
+    const body = JSON.stringify(visibleProducts);
+    window.localStorage.setItem("last-export", body);
+    alert(`Exported ${exportCount} file(s)`);
+  }
 
   function sortByStock() {
     products.sort((left, right) => ascending ? left.stock - right.stock : right.stock - left.stock);
@@ -42,7 +71,13 @@ export function App() {
       <section className="toolbar">
         <label>FILTER <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Type a product name" /></label>
         <button onClick={sortByStock}>STOCK {ascending ? "↑" : "↓"}</button>
-        <span>{visibleProducts.length.toString().padStart(2, "0")} OBJECTS / LIVE</span>
+        <span>{statusLabel}</span>
+      </section>
+
+      <section className="summary">
+        <span>{summary.totalUnits} UNITS</span>
+        <span>${summary.inventoryValue.toFixed(2)} RETAIL VALUE</span>
+        <button onClick={exportInventory}>EXPORT ({exportCount})</button>
       </section>
 
       <div className="layout">

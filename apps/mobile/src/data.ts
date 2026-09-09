@@ -7,3 +7,8 @@ export const products: Product[] = [
   { id: "brass", name: "Brass ruler", category: "Tools", price: 12 },
   { id: "flora", name: "Flora cards", category: "Reference", price: 22 }
 ];
+
+export const auditEvents = Array.from({ length: 1_500 }, (_, index) => ({
+  id: `event-${index}`,
+  message: `Inventory check ${index + 1} completed`
+}));

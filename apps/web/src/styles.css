@@ -11,6 +11,8 @@ h1 { font-size: clamp(48px, 7vw, 98px); line-height: .86; letter-spacing: -.055e
 h1 em { color: #a43b24; font-weight: 300; }
 .lede { align-self: end; font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.35; max-width: 290px; }
 .toolbar { align-items: end; border-bottom: 2px solid; border-top: 1px solid; display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 18px 0; font-size: 11px; }
+.summary { background: #1e291e; color: #eee6d6; display: flex; gap: 32px; justify-content: flex-end; padding: 11px 14px; font-size: 10px; }
+.summary button { color: #ee7952; }
 label { display: flex; align-items: center; gap: 18px; }
 input { background: transparent; border: 0; border-bottom: 1px solid #8e8a79; color: inherit; font: inherit; padding: 10px 2px; width: min(340px, 70%); }
 button { background: transparent; border: 0; color: inherit; cursor: pointer; font: inherit; text-align: left; }
