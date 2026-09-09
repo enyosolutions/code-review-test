@@ -1,0 +1,14 @@
+{
+  "name": "field-notes-code-review",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:api": "npm run dev -w @field-notes/api",
+    "dev:web": "npm run dev -w @field-notes/web",
+    "dev:mobile": "npm run start -w @field-notes/mobile",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": { "node": ">=20" }
+}
