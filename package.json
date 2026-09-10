@@ -4,11 +4,13 @@
   "version": "1.0.0",
   "workspaces": ["apps/*"],
   "scripts": {
-    "dev:api": "npm run dev -w @field-notes/api",
-    "dev:web": "npm run dev -w @field-notes/web",
-    "dev:mobile": "npm run start -w @field-notes/mobile",
-    "test": "npm run test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:web": "bun run --cwd apps/web dev",
+    "dev:mobile": "bun run --cwd apps/mobile start",
+    "test": "bun run --cwd apps/api test",
+    "typecheck": "bun run --cwd apps/api typecheck && bun run --cwd apps/mobile typecheck && bun run --cwd apps/web typecheck",
+    "build:web": "bun run --cwd apps/web build"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=20", "bun": ">=1.2" },
+  "packageManager": "bun@1.4.3"
 }

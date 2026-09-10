@@ -11,10 +11,10 @@ The applications run, but the code is not production-ready. Candidates should re
 ## Quick start
 
 ```bash
-npm install
-npm run dev:api
-npm run dev:web
-npm run dev:mobile
+bun install
+bun run dev:api
+bun run dev:web
+bun run dev:mobile
 ```
 
 Use separate terminals for each app. The web app expects the API at `http://localhost:4000`; it also falls back to sample data when the API is unavailable.

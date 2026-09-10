@@ -4,6 +4,7 @@ dist
 .DS_Store
 coverage
 *.log
+*.tsbuildinfo
 .env
 !apps/api/.env
 !apps/mobile/.env
